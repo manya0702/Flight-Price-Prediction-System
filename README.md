@@ -22,4 +22,10 @@ This project aims to develop to propose a model which can capture the variabilit
 
 In this project, a machine learning framework was developed to predict the airfare ticket prices between March to June 2019. The dataset used comprises 10683 data points/samples and 10 features with the flight prices being the target variable. Several features were extracted from the dataset and combined together with macroeconomic data, to model the air travel market segment. A machine learning model comprising of the ensemble of Artificial Neural Network, XGBoost Regressor, and Light Gradient Boosted Machine Regressor models was used to predict the flight ticket price with a mean absolute error of 1283.79 and a R2 score of 0.784.
 
+***PUBLICATION LINK : https://ieeexplore.ieee.org/document/10048801***
+
+
+
+
+
 
