@@ -1,221 +1,161 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
 
+# In[1]:
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 # In[2]:
-
 
 data=pd.read_excel('Data_Train.xlsx')
 
-
-# ## EXPLORATORY DATA ANALYSIS
+### EXPLORATORY DATA ANALYSIS
 
 # In[3]:
 
-
 data.head()
-
 
 # In[4]:
 
-
 data.info()
-
 
 # In[5]:
 
-
 data.shape
-
 
 # In[6]:
 
-
 data.isnull().sum()
 
-
 # In[7]:
-
 
 data=data.dropna()
 print(data.shape)
 
-
 # In[8]:
-
 
 data.duplicated().sum()
 
-
 # In[9]:
-
 
 data = data.drop_duplicates()
 print(data.shape)
 
-
 # In[10]:
-
 
 data.describe()
 
-
 # In[11]:
-
 
 print(data['Airline'].unique())
 print(data['Airline'].nunique())
 
-
 # In[12]:
-
 
 print(data['Date_of_Journey'].unique())
 print(data['Date_of_Journey'].nunique())
 
-
 # In[13]:
-
 
 print(data['Source'].unique())
 print(data['Source'].nunique())
 
-
 # In[14]:
-
 
 print(data['Destination'].unique())
 print(data['Destination'].nunique())
 
-
 # In[15]:
-
 
 print(data['Route'].unique())
 print(data['Route'].nunique())
 
-
 # In[16]:
-
 
 print(data['Dep_Time'].unique())
 print(data['Dep_Time'].nunique())
 
-
 # In[17]:
-
 
 print(data['Arrival_Time'].unique())
 print(data['Arrival_Time'].nunique())
 
-
 # In[18]:
-
 
 print(data['Duration'].unique())
 print(data['Duration'].nunique())
 
-
 # In[19]:
-
 
 print(data['Total_Stops'].unique())
 print(data['Total_Stops'].nunique())
 
-
 # In[20]:
-
 
 print(data['Additional_Info'].unique())
 print(data['Additional_Info'].nunique())
 
-
 # In[21]:
-
 
 print(data['Price'].unique())
 print(data['Price'].nunique())
 
-
-# ### Count Plots
+### COUNT PLOTS
 
 # In[22]:
-
 
 data.pivot_table(data[['Price']],index=['Airline'],aggfunc='sum').plot(kind='bar',figsize=(10,5)) 
 plt.xlabel('Airline')
 plt.ylabel('Price')
 
-
 # In[23]:
-
 
 data['Airline'].value_counts()
 
-
 # In[24]:
-
 
 data.pivot_table(data[['Price']],index=['Date_of_Journey'],aggfunc='sum').plot(kind='bar',figsize=(10,5))
 plt.xlabel('Date_of_Journey')
 plt.ylabel('Price')
 
-
 # In[25]:
-
 
 data.pivot_table(data[['Price']],index=['Source','Destination'],aggfunc='sum').plot(kind='bar',figsize=(10,5))
 plt.xlabel('Source')
 plt.ylabel('Price')
 
-
 # In[26]:
-
 
 data.pivot_table(data[['Price']],index=['Total_Stops'],aggfunc='sum').plot(kind='bar',figsize=(10,5))
 plt.xlabel('Duration')
 plt.ylabel('Price')
 
-
 # In[27]:
-
 
 data.pivot_table(data[['Price']],index=['Additional_Info'],aggfunc='sum').plot(kind='bar',figsize=(10,5))
 plt.xlabel('Source')
 plt.ylabel('Price')
 
-
-# ## FEATURE ENGINEERING
+### FEATURE ENGINEERING
 
 # In[28]:
 
-
 data['Date_of_Journey']=pd.to_datetime(data['Date_of_Journey'])
 
-
 # In[29]:
-
 
 # changing No_Info column in Additional_Info to 'no_info'
 
 data[data['Additional_Info']=='No Info']
 
-
 # In[30]:
-
 
 data['Additional_Info'].replace('No Info', 'No info',inplace=True)
 
-
 # In[31]:
-
 
 # creating day and month columns from the Date of Journey field.
 
@@ -225,15 +165,11 @@ data['DOJ_Month']=data['Date_of_Journey'].dt.month
 data['DOJ_Day']=data['Date_of_Journey'].dt.day
 data=data.drop(['Date_of_Journey'],axis=1)
 
-
 # In[32]:
-
 
 data.head()
 
-
 # In[33]:
-
 
 # treating departure time and arrival time
 
@@ -245,114 +181,80 @@ data['Arrival_Hour']=pd.to_datetime(data['Arrival_Time']).dt.hour
 data['Arrival_Minute']=pd.to_datetime(data['Arrival_Time']).dt.minute
 data=data.drop(['Arrival_Time'],axis=1)
 
-
 # In[34]:
-
 
 data.head()
 
-
 # In[35]:
-
 
 # correcting the 5m data entry of Duration column
 
 data.loc[data['Duration']== '5m', 'Duration'] = '1h 25m'
 
-
 # In[36]:
-
 
 data['Duration_hours'] =  data['Duration'].apply(lambda x: str(x).split('h')[0]).astype('int')
 data['Duration_minutes'] = data['Duration'].apply(lambda x: 0 if ((str(x).split('h')[1].split('m')[0])=='') else str(x).split('h')[1].split('m')[0]).astype('int')
 
-
 # In[37]:
-
 
 data=data.drop('Duration',axis=1)
 
-
 # In[38]:
-
 
 data.Duration_hours.unique()
 
-
 # In[39]:
-
 
 data.Duration_minutes.unique()
 
-
 # In[40]:
-
 
 data.info()
 
-
 # In[41]:
-
 
 # treating the Total_Stops column
 data['Total_Stops'].str.split(' ')
 data['Stops'] = data['Total_Stops'].apply(lambda x: 0 if (str(x).split(' ')[0] =='non-stop') else (str(x).split(' ')[0])).astype('int')
 
-
 # In[42]:
-
 
 data=data.drop('Total_Stops',axis=1)
 
-
 # In[43]:
-
 
 data.head(5)
 
-
 # In[44]:
-
 
 data.info()
 
-
 # In[45]:
-
 
 data.shape
 
-
-# ## FEATURE SELECTION
+### FEATURE SELECTION
 
 # In[46]:
-
 
 X=data.drop(['Price'],axis=1)
 y=data['Price']
 print(X.shape,y.shape)
 
-
 # In[47]:
 
-
 # separating the date into numerical, nominal and categorical fields
-
 cat=['Airline','Source','Destination','Route','Additional_Info']
 num=['DOJ_Month','DOJ_Day','Dep_Hour','Dep_Minute','Arrival_Hour','Arrival_Minute','Duration_hours','Duration_minutes','Stops']
 
-
 # In[48]:
-
 
 X_num,X_cat=X[num],X[cat]
 
-
 # In[49]:
 
-
 # Applying Pearson's correlation on X_num
-
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 # feature selection
@@ -368,16 +270,12 @@ for i in range(len(fs.scores_)):
 plt.bar([i for i in range(len(fs.scores_))], fs.scores_)
 plt.show()
 
-
 # In[50]:
-
 
 import pickle 
 pickle.dump(fs,open('Pearson_corr','wb'))
 
-
 # In[50]:
-
 
 # Applying ANOVA F-Test on X_cat
 
@@ -401,54 +299,40 @@ for i in range(len(fs.scores_)):
 plt.bar([i for i in range(len(fs.scores_))], fs.scores_)
 plt.show()
 
-
 # In[52]:
-
 
 pickle.dump(fs,open('ANOVA_cat','wb'))
 
-
 # In[51]:
-
 
 X_new=pd.concat([pd.DataFrame(X_num_fs),pd.DataFrame(X_cat_fs)],axis=1)
 print(X_new.shape)
 
-
 # In[52]:
-
 
 X_new.info()
 
-
-# ### ONE HOT ENCODING
+### ONE HOT ENCODING
 
 # In[53]:
-
 
 from sklearn.preprocessing import OneHotEncoder
 ohe = OneHotEncoder(sparse=False, drop='first')
 X_new_ohe = ohe.fit_transform(X_cat_fs)
 print(X_new_ohe.shape)
 
-
 # In[56]:
-
 
 pickle.dump(ohe,open('OneHotEncoder','wb'))
 
-
 # In[54]:
-
 
 X_final = np.concatenate([X_num_fs, X_new_ohe],axis=1)
 print(X_final.shape)
 
-
-# ### TRAIN TEST SPLIT
+### TRAIN TEST SPLIT
 
 # In[55]:
-
 
 from sklearn.model_selection import train_test_split
 
@@ -456,13 +340,11 @@ X_temp,X_test,y_temp,y_test=train_test_split(X_final,y,test_size=0.1)
 X_train,X_val,y_train,y_val=train_test_split(X_temp,y_temp,test_size=0.2)
 print(X_train.shape,X_val.shape,X_test.shape,y_train.shape,y_val.shape,y_test.shape)
 
-
-# ## DATA SCALING
+### DATA SCALING
 
 # ### Scaling of training, testing and validation dataset features
 
 # In[56]:
-
 
 from sklearn.preprocessing import MinMaxScaler
 mms=MinMaxScaler(feature_range=(0,1))
@@ -472,17 +354,13 @@ X_val_scaled = mms.transform(X_val)
 X_test_scaled = mms.transform(X_test)
 print(X_train_scaled.shape,X_val.shape,X_test_scaled.shape)
 
-
 # In[60]:
-
 
 pickle.dump(mms,open('MinMaxScalar','wb'))
 
-
-# ### Scaling of target variable
+#### Scaling of target variable
 
 # In[57]:
-
 
 # Min max scaler
 
@@ -495,48 +373,37 @@ y_val_scaled = mms1.transform(y_val.to_numpy().reshape(-1,1)).flatten()
 y_test_scaled = mms1.transform(y_test.to_numpy().reshape(-1,1)).flatten()
 print(y_train_scaled.shape,y_val_scaled.shape,y_test_scaled.shape)
 
-
-# ### CHECK FOR DATA SKEWNESS
+#### CHECK FOR DATA SKEWNESS
 
 # In[58]:
-
 
 from scipy.stats import skew
 y_train_skew = skew(y_train,axis=0)
 print(y_train_skew)
 
-
 # In[59]:
-
 
 y_train_log_skew = skew(np.log(y_train+1),axis=0)
 print(y_train_log_skew)
 
-
 # In[60]:
-
 
 y.value_counts()
 
-
 # In[61]:
-
 
 y_train.value_counts()
 
+### MODELLING
 
-# ## MODELLING
-
-# ### I. REGRESSION BASED ALGORITHMS
+#### I. REGRESSION BASED ALGORITHMS
 
 # ### 1. Linear Regression
 
 # In[66]:
 
-
 X_train_lr=np.concatenate([X_train_scaled,X_val_scaled],axis=0)
 print(X_train_lr.shape)
-
 
 # In[67]:
 
